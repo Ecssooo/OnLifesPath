@@ -40,46 +40,68 @@ void ACubeGameMode::SpawnCharacterAtBeginPlay()
 			LocalPlayer = UGameplayStatics::CreatePlayer(GetWorld(), CharacterSpawner->PlayerIndex, true);
 			UE_LOG(LogTemp, Warning, TEXT("PlayerController create for index : %d"), CharacterSpawner->PlayerIndex);
 		};
-		
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-		
-		ACharacterPlayer* NewCharacter = GetWorld()->SpawnActor<ACharacterPlayer>(
-			GetCharacterClass(CharacterSpawner->PlayerIndex),
-			CharacterSpawner->GetActorLocation(),
-			CharacterSpawner->GetActorRotation(),
-			SpawnParams
-		);
-		
-		if (!NewCharacter) continue;
-		UE_LOG(LogTemp, Log, TEXT("Character Created"))
-		NewCharacter->PlayerIndex = CharacterSpawner->PlayerIndex;
-		UE_LOG(LogTemp, Log, TEXT("%i"), NewCharacter->PlayerIndex);
-		LocalPlayer->Possess(NewCharacter);
-		Players.Add(NewCharacter);
-		
-		if (!LocalPlayer)
+
+		if (CharacterSpawner->PlayerIndex == 2)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Local player not found : %d"), CharacterSpawner->PlayerIndex);
-		};
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 		
-		UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer->GetLocalPlayer());
-		if (!InputSubsystem)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Input subsystem not found"))
+			APawn* NewCharacter = GetWorld()->SpawnActor<APawn>(
+				Settings->Spectator,
+				CharacterSpawner->GetActorLocation(),
+				CharacterSpawner->GetActorRotation(),
+				SpawnParams
+			);
+			UE_LOG(LogTemp, Log, TEXT("Spectator Created"))
+			LocalPlayer->Possess(NewCharacter);
+
+			UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer->GetLocalPlayer());
+			InputSubsystem->AddMappingContext(Settings->IMCInGame.IMCSpectator, 0);
+			UE_LOG(LogTemp, Log, TEXT("Spectator input map"))
 			
-			continue;	
-		}
-		if (Settings->UsKeyboardControl)
+		}else
 		{
-			InputSubsystem->AddMappingContext(GetKeyboardProfile(CharacterSpawner->PlayerIndex),0);
-			UE_LOG(LogTemp, Warning, TEXT("LocalPlayer : %d, Add keyboard IMC : %d"), LocalPlayer->GetLocalPlayer()->GetControllerId(), CharacterSpawner->PlayerIndex);
-		}
-		else
-		{	
-			InputSubsystem->AddMappingContext(Settings->IMCInGame.IMCGamePad,0);
-			UE_LOG(LogTemp, Warning, TEXT("Add GamePad IMC : %d"), CharacterSpawner->PlayerIndex);
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		
+			ACharacterPlayer* NewCharacter = GetWorld()->SpawnActor<ACharacterPlayer>(
+				GetCharacterClass(CharacterSpawner->PlayerIndex),
+				CharacterSpawner->GetActorLocation(),
+				CharacterSpawner->GetActorRotation(),
+				SpawnParams
+			);
+		
+			if (!NewCharacter) continue;
+			UE_LOG(LogTemp, Log, TEXT("Character Created"))
+			NewCharacter->PlayerIndex = CharacterSpawner->PlayerIndex;
+			UE_LOG(LogTemp, Log, TEXT("%i"), NewCharacter->PlayerIndex);
+			LocalPlayer->Possess(NewCharacter);
+			Players.Add(NewCharacter);
+		
+			if (!LocalPlayer)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Local player not found : %d"), CharacterSpawner->PlayerIndex);
+			};
+		
+			UEnhancedInputLocalPlayerSubsystem* InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer->GetLocalPlayer());
+			if (!InputSubsystem)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Input subsystem not found"))
+			
+				continue;	
+			}
+			if (Settings->UsKeyboardControl)
+			{
+				InputSubsystem->AddMappingContext(GetKeyboardProfile(CharacterSpawner->PlayerIndex),0);
+				UE_LOG(LogTemp, Warning, TEXT("LocalPlayer : %d, Add keyboard IMC : %d"), LocalPlayer->GetLocalPlayer()->GetControllerId(), CharacterSpawner->PlayerIndex);
+			}
+			else
+			{	
+				InputSubsystem->AddMappingContext(Settings->IMCInGame.IMCGamePad,0);
+				UE_LOG(LogTemp, Warning, TEXT("Add GamePad IMC : %d"), CharacterSpawner->PlayerIndex);
+			}
 		}
 	}
 }

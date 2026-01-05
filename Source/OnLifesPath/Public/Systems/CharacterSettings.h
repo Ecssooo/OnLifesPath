@@ -23,6 +23,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UInputMappingContext> IMCKeyboardP2;
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputMappingContext> IMCSpectator;
+	
 	int GetPlayerIndexFromKey(const FKey& Key) const;
 };
 
@@ -53,6 +56,9 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category="Character class")
 	TSubclassOf<ACharacterPlayer> CharacterPlayer2;
 
+	UPROPERTY(Config, EditAnywhere, Category="Character class")
+	TSubclassOf<APawn> Spectator;
+	
 	UPROPERTY(EditAnywhere, Config, Category="Move")
 	float WalkSpeed;
 

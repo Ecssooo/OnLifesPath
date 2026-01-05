@@ -9,6 +9,7 @@
 
 int FLocalMultiplayerProfile::GetPlayerIndexFromKey(const FKey& Key) const
 {
+			
 	const TArray<FEnhancedActionKeyMapping>& Mappings = IMCKeyboardP1->GetMappings();
 	for (const FEnhancedActionKeyMapping& Mapping : Mappings)
 	{
@@ -20,5 +21,12 @@ int FLocalMultiplayerProfile::GetPlayerIndexFromKey(const FKey& Key) const
 	{
 		if (Mapping.Key == Key){return 1;}
 	}
+
+	const TArray<FEnhancedActionKeyMapping>& Mappings3 = IMCSpectator->GetMappings();
+	for (const FEnhancedActionKeyMapping& Mapping : Mappings3)
+	{
+		if (Mapping.Key == Key){return 2;}
+	}
+
 	return -1;
 }
